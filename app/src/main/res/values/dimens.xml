@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="default_app_card_radius">20dp</dimen>
+    <dimen name="default_margin">16dp</dimen>
+    <dimen name="cardview_stroke_width">10dp</dimen>
+    <dimen name="recipe_name_title">32sp</dimen>
+    <dimen name="width_height_progressbar">100dp</dimen>
+</resources>
