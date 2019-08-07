@@ -2,13 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+    buildToolsVersion rootProject.buildToolsVersion
+
     defaultConfig {
         applicationId "manic.com.bakingrecipes"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -24,27 +26,41 @@ android {
 
 dependencies {
 
-    def version = "28.0.0"
-    def exoPlayerVersion = "2.9.0"
+    def version = "1.0.0"
+    def exoPlayerVersion = "2.10.2"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.android.support:appcompat-v7:$version"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation "com.android.support:recyclerview-v7:$version"
+    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.annotation:annotation:' + rootProject.androidxLibVersion
 
-    implementation "com.android.support:cardview-v7:$version"
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
-    implementation "com.android.support:recyclerview-v7:$version"
+    implementation "androidx.cardview:cardview:$version"
 
-    implementation 'com.jakewharton:butterknife:9.0.0'
-    implementation 'com.android.support:support-v4:28.0.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:9.0.0'
+    implementation "androidx.recyclerview:recyclerview:$version"
+
+    implementation 'com.jakewharton:butterknife:' + rootProject.butterKnifeVersion
+    annotationProcessor 'com.jakewharton:butterknife-compiler:' + rootProject.butterKnifeVersion
 
     implementation "com.google.android.exoplayer:exoplayer:$exoPlayerVersion"
 
-    implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+
+    implementation 'androidx.test.espresso:espresso-idling-resource:' + rootProject.espressoVersion
+
+    debugImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
+    debugImplementation 'androidx.test.espresso.idling:idling-concurrent:3.1.0'
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    // Testing-only dependencies
+    androidTestImplementation 'androidx.test:core:' + rootProject.coreVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + rootProject.extJUnitVersion
+    androidTestImplementation 'androidx.test:runner:' + rootProject.runnerVersion
+    androidTestImplementation 'androidx.test:rules:' + rootProject.androidxLibVersion
+    androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:' + rootProject.espressoVersion
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.0'
 }

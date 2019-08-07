@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/widgetItemContainer"
+    android:paddingLeft="@dimen/default_padding"
+    android:paddingStart="@dimen/default_padding"
+    android:paddingRight="@dimen/default_padding"
+    android:paddingEnd="@dimen/default_padding"
+    android:minHeight="@dimen/widget_listview_item_height"
+    android:weightSum="2"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/ingredient_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:layout_gravity="center_vertical"/>
+
+</LinearLayout>

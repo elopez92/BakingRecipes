@@ -1,13 +1,17 @@
 package manic.com.bakingrecipes.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -17,6 +21,10 @@ import manic.com.bakingrecipes.R;
 import manic.com.bakingrecipes.adapter.RecipeAdapter;
 import manic.com.bakingrecipes.model.Recipe;
 import manic.com.bakingrecipes.rest.RecipeApiService;
+import manic.com.bakingrecipes.util.IdlingResource;
+import manic.com.bakingrecipes.widget.DisplayIngredientsService;
+import manic.com.bakingrecipes.util.GV;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,8 +35,12 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
 
     private static final String TAG = "MainActivity";
 
+    @Nullable
+    private IdlingResource mIdlingResource;
+
     private static Retrofit retrofit = null;
-    @BindView(R.id.recipe_rv) RecyclerView mRecyclerView;
+    @BindView(R.id.recipe_rv)
+    RecyclerView mRecyclerView;
     @BindView(R.id.progress_bar) ProgressBar pb;
     private RecipeAdapter mRecipeAdapter;
 
@@ -41,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
 
         ButterKnife.bind(this);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
 
         mRecipeAdapter = new RecipeAdapter(this, this);
         mRecyclerView.setAdapter(mRecipeAdapter);
@@ -50,12 +62,15 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
         getResponse();
     }
 
-    private void getResponse() {
+    public void getResponse() {
         pb.setVisibility(View.VISIBLE);
+        OkHttpClient client = new OkHttpClient();
+        IdlingResource.registerOkHttp(client);
         if(retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(getString(R.string.baseUrl))
                     .addConverterFactory(GsonConverterFactory.create())
+                    .client(client)
                     .build();
         }
 
@@ -80,11 +95,21 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
 
     }
 
-
     @Override
     public void onClick(Recipe recipe) {
+        GV.currentRecipe = recipe;
+        DisplayIngredientsService.startActionUpdateIngredientsWidgets(this);
         Intent intent = new Intent(MainActivity.this, RecipeActivity.class);
         intent.putExtra(getString(R.string.recipe), recipe);
         startActivity(intent);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if(mIdlingResource == null){
+           // mIdlingResource = new IdlingResource();
+        }
+        return mIdlingResource;
     }
 }

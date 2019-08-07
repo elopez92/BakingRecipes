@@ -24,7 +24,9 @@ public class Step implements Parcelable {
     @Expose
     private String thumbnailURL;
 
-    protected Step(Parcel in) {
+    private boolean isChecked;
+
+    private Step(Parcel in) {
         if (in.readByte() == 0) {
             id = null;
         } else {
@@ -86,6 +88,14 @@ public class Step implements Parcelable {
 
     public void setThumbnailURL(String thumbnailURL) {
         this.thumbnailURL = thumbnailURL;
+    }
+
+    public boolean isChecked(){
+        return isChecked;
+    }
+
+    public void setChecked(boolean isChecked){
+        this.isChecked = isChecked;
     }
 
     @Override

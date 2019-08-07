@@ -1,16 +1,25 @@
 package manic.com.bakingrecipes.fragment;
 
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -32,11 +41,23 @@ import manic.com.bakingrecipes.model.Step;
  */
 public class DetailFragment extends Fragment {
 
-    private Step step;
+    private final String STATE_RESUME_WINDOW = "resumeWindow";
+    private final String STATE_RESUME_POSITION = "resumePosition";
 
-    private boolean playWhenReady = false;
+    private Context mContext;
+    private Step step;
+    private String key;
+
     private SimpleExoPlayer mExoPlayer;
-    @BindView(R.id.player_view) PlayerView mPlayerView;
+
+    private boolean playWhenReady = true;
+
+    private PlayerView mPlayerView;
+    @BindView(R.id.instructions_tv) TextView instructionTv;
+    @BindView(R.id.error_message) TextView exoErrorMessage;
+
+    private int mResumeWindow;
+    private long mResumePosition = C.INDEX_UNSET;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -48,13 +69,62 @@ public class DetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
+        mContext = getContext();
+
+        key = getString(R.string.step_key);
+
+        Bundle arguements = getArguments();
+        if(arguements.containsKey(key)) {
+            step = arguements.getParcelable(key);
+            instructionTv.setText(step.getDescription());
+        }
+
+        if(savedInstanceState != null){
+            mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
+            mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
+        }
         return rootView;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt(STATE_RESUME_WINDOW, mResumeWindow);
+        outState.putLong(STATE_RESUME_POSITION, mResumePosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mPlayerView ==  null){
+            mPlayerView = getView().findViewById(R.id.player_view);
+            initializePlayer();
+        }else
+            resumePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPlayerView != null && mPlayerView.getPlayer() != null) {
+            mResumeWindow = mPlayerView.getPlayer().getCurrentWindowIndex();
+            mResumePosition = Math.max(0, mPlayerView.getPlayer().getContentPosition());
+        }
+        releasePlayer();
+    }
+
+    private void resumePlayer(){
+        boolean haveResumePosition = mResumePosition != C.INDEX_UNSET;
+
+        if(haveResumePosition){
+            mPlayerView.getPlayer().seekTo(mResumeWindow, mResumePosition);
+        }
+    }
+
     private void initializePlayer() {
-        if(mExoPlayer == null){
+        if (mExoPlayer == null) {
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(
-                    getContext(),
+                    mContext,
                     new DefaultRenderersFactory(getContext()),
                     new DefaultTrackSelector(),
                     new DefaultLoadControl());
@@ -62,8 +132,22 @@ public class DetailFragment extends Fragment {
             mPlayerView.setPlayer(mExoPlayer);
             mExoPlayer.setPlayWhenReady(playWhenReady);
         }
-        MediaSource mediaSource = buildMediaSource(Uri.parse(step.getVideoURL()));
-        mExoPlayer.prepare(mediaSource, true, false);
+
+        boolean haveResumePosition = mResumePosition != C.INDEX_UNSET;
+        if(haveResumePosition){
+            mPlayerView.getPlayer().seekTo(mResumeWindow, mResumePosition);
+        }
+
+        if (step.getVideoURL().isEmpty()) {
+            exoErrorMessage.setText(getString(R.string.exo_no_video_available));
+            mPlayerView.setCustomErrorMessage(getString(R.string.exo_no_video_available));
+            mPlayerView.setPlayer(null);
+            mExoPlayer = null;
+        } else {
+            exoErrorMessage.setText("");
+            MediaSource mediaSource = buildMediaSource(Uri.parse(step.getVideoURL()));
+            mExoPlayer.prepare(mediaSource, !haveResumePosition, false);
+        }
     }
 
     private MediaSource buildMediaSource(Uri uri) {
@@ -74,6 +158,11 @@ public class DetailFragment extends Fragment {
                 .createMediaSource(uri);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
     private void releasePlayer(){
         if(mExoPlayer!=null){
             mExoPlayer.stop();
@@ -81,4 +170,5 @@ public class DetailFragment extends Fragment {
             mExoPlayer = null;
         }
     }
+
 }

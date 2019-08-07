@@ -9,4 +9,16 @@
     <string name="recipe">recipe</string>
     <string name="ingredient_list">ingredient list</string>
     <string name="step_list">step list</string>
+    <string name="ingredient_cv_label">Ingredients</string>
+    <string name="step_tv_label">Steps:</string>
+    <string name="step_key">step_key</string>
+    <string name="row_index">rowIndex</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="ingredients_text">Ingredients</string>
+    <string name="widget_title_text">%1$s\nIngredients</string>
+    <string name="recipe_key">recipe_key</string>
+    <string name="back_label">Back</string>
+    <string name="next_label">Next</string>
+    <string name="exo_no_video_available">No video available</string>
 </resources>
